@@ -17,7 +17,8 @@ def get_courses_list():
         courses_list.append(elem.find('ns:loc', namespace_map).text)
 
     courses_limit = 20
-    random_course = randint(1, len(courses_list) - courses_limit)
+    start_index = 0
+    random_course = randint(start_index, len(courses_list) - courses_limit)
     return courses_list[random_course: random_course + courses_limit]
 
 
