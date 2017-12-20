@@ -22,8 +22,8 @@ def get_list_of_20_random_courses():
     return courses_list[random_course: random_course + courses_limit]
 
 
-def get_course_info(course_slug):
-    request = requests.get(course_slug)
+def get_course_info(course__url):
+    request = requests.get(course__url)
     request.encoding = 'utf-8'
     soup = BeautifulSoup(request.text, 'html.parser')
 
