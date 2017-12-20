@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from openpyxl import Workbook
 
 
-def get_courses_list():
+def get_list_of_20_random_courses():
     url = 'https://www.coursera.org/sitemap~www~courses.xml'
     courses_list = []
     root = ElementTree.fromstring(requests.get(url).text)
@@ -31,7 +31,7 @@ def get_course_info(course_slug):
         try:
             course_attribute = soup.find(html_tag, class_=html_class).text
         except AttributeError:
-            return 'not set'
+            return None
         else:
             return course_attribute
 
@@ -45,7 +45,7 @@ def get_course_info(course_slug):
     try:
         course_weeks_number = len(soup.findAll('div', class_='week'))
     except AttributeError:
-        course_weeks_number = 'not set'
+        return None
 
     return {'name': course_name, 'language': course_language,
             'start_date': course_start_date,
@@ -65,13 +65,14 @@ def output_courses_info_to_xlsx(file_path, courses):
 
     offset = 2
     for row, course in enumerate(courses):
-        worksheet['A{}'.format(row + offset)] = course
-        worksheet['B{}'.format(row + offset)] = courses[course]['name']
-        worksheet['C{}'.format(row + offset)] = courses[course]['language']
-        worksheet['D{}'.format(row + offset)] = courses[course]['start_date']
-        worksheet['E{}'.format(row + offset)] = courses[course][
+        row_number = row + offset
+        worksheet['A{}'.format(row_number)] = course
+        worksheet['B{}'.format(row_number)] = courses[course]['name']
+        worksheet['C{}'.format(row_number)] = courses[course]['language']
+        worksheet['D{}'.format(row_number)] = courses[course]['start_date']
+        worksheet['E{}'.format(row_number)] = courses[course][
             'number_of_weeks']
-        worksheet['F{}'.format(row + offset)] = courses[course]['score']
+        worksheet['F{}'.format(row_number)] = courses[course]['score']
 
     workbook.save(file_path)
 
@@ -81,8 +82,12 @@ if __name__ == '__main__':
         exit("Usage: python coursera.py path_for_saving_file")
 
     courses_dict = {}
-    courses_urls = get_courses_list()
-    for course_url in courses_urls:
-        courses_dict[course_url] = get_course_info(course_url)
+    try:
+        courses_urls_list = get_list_of_20_random_courses()
+    except ConnectionResetError:
+        exit('Could\'t connect to coursera. Try again later.')
+    else:
+        for course_url in courses_urls_list:
+            courses_dict[course_url] = get_course_info(course_url)
 
-    output_courses_info_to_xlsx(sys.argv[1], courses_dict)
+        output_courses_info_to_xlsx(sys.argv[1], courses_dict)
