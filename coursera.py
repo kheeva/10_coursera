@@ -47,9 +47,11 @@ def get_course_info(course_slug):
     except AttributeError:
         return None
 
-    return {'name': course_name, 'language': course_language,
+    return {'name': course_name,
+            'language': course_language,
             'start_date': course_start_date,
-            'number_of_weeks': course_weeks_number, 'score': course_score}
+            'number_of_weeks': course_weeks_number,
+            'score': course_score}
 
 
 def output_courses_info_to_xlsx(file_path, courses):
